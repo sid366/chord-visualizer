@@ -1,44 +1,67 @@
 import { useState } from 'react'
 import Piano from 'react-piano-component'
-import { Chord } from '@tonaljs/tonal'
+import { Chord, ChordType } from '@tonaljs/tonal'
 
 function App() {
   const [rootNote, setRootNote] = useState('C')
   const [chordType, setChordType] = useState('major')
   const [inversion, setInversion] = useState(0)
   
-  const chordTypes = [
+  // Organize chord types into logical groups
+  const chordGroups = {
     // Basic triads
-    'major',
-    'minor',
-    'dim',
-    'aug',
-    'sus4',
-    'sus2',
-    
+    basic: [
+      'major',
+      'minor',
+      'dim',
+      'aug',
+      'sus4',
+      'sus2'
+    ],
     // Seventh chords
-    '7',
-    'maj7',
-    'm7',
-    'dim7',
-    'aug7',
-    '7sus4',
-    
+    seventh: [
+      '7',
+      'maj7',
+      'm7',
+      'dim7',
+      'aug7',
+      '7sus4',
+      'm7b5'    // Half-diminished seventh
+    ],
     // Extended chords
-    '9',
-    'maj9',
-    'm9',
-    'add9',
-    'madd9',
-    '6',
-    'm6',
-    '69',
-    'm69',
-    
+    extended: [
+      '9',
+      'maj9',
+      'm9',
+      '6',
+      'm6',
+      '69',
+      'm69'
+    ],
     // Added tone chords
-    'add9',
-    'madd9',
-  ]
+    added: [
+      'add9',
+      'madd9'
+    ],
+    // Complex extended chords
+    complex: [
+      'maj7#11',  // Major seventh with sharp eleventh
+      'maj7#5',   // Major seventh with augmented fifth
+      'maj9#11',  // Major ninth with sharp eleventh
+      'maj13',    // Major thirteenth
+      'm13',      // Minor thirteenth
+      '13',       // Dominant thirteenth
+      '13sus4',   // Dominant thirteenth suspended fourth
+      '7b9',      // Dominant seventh with flat ninth
+      '7#9',      // Dominant seventh with sharp ninth
+      'm9b5',     // Minor ninth with flat fifth
+      'm11',      // Minor eleventh
+      '7alt'      // Altered dominant seventh
+    ]
+  }
+
+  // Flatten the chord groups into a single array for the chord type selection
+  const chordTypes = Object.values(chordGroups).flat()
 
   const notes = [
     'C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E',
@@ -91,20 +114,64 @@ function App() {
 
   // Function to get the correctly formatted chord name string for Tonal.js
   const getTonalChordName = () => {
-    // Tonal.js expects chord names like 'Cmaj7', 'Cm', 'Cadd9', 'Cmadd9', etc.
-    // For basic types like 'major', 'minor', 'dim', etc., rootNote + chordType works.
-    // For 'add' types, it should be rootNote + chordType directly.
+    // Tonal.js expects chord names in specific formats
     if (chordType.startsWith('add') || chordType.startsWith('madd')) {
       return `${rootNote}${chordType}`;
-    } else if (chordType === '5') { // Handle power chords if they were included
-        return `${rootNote}5`;
+    } else if (chordType === '5') {
+      return `${rootNote}5`;
+    } else if (chordType === 'maj7b5') {
+      // Tonal.js expects this as 'maj7b5' without the root note
+      return `${rootNote}maj7b5`;
+    } else if (chordType === 'augmaj7') {
+      return `${rootNote}augmaj7`;
+    } else if (chordType === 'maj7b9') {
+      return `${rootNote}maj7b9`;
+    } else if (chordType === 'maj7#9') {
+      return `${rootNote}maj7#9`;
+    } else if (chordType === 'maj7b13') {
+      return `${rootNote}maj7b13`;
+    } else if (chordType === 'maj7#11') {
+      return `${rootNote}maj7#11`;
+    } else if (chordType === 'maj9#11') {
+      return `${rootNote}maj9#11`;
+    } else if (chordType === 'maj13') {
+      return `${rootNote}maj13`;
+    } else if (chordType === 'm13') {
+      return `${rootNote}m13`;
+    } else if (chordType === '13') {
+      return `${rootNote}13`;
+    } else if (chordType === '13sus4') {
+      return `${rootNote}13sus4`;
+    } else if (chordType === '7b9') {
+      return `${rootNote}7b9`;
+    } else if (chordType === '7#9') {
+      return `${rootNote}7#9`;
+    } else if (chordType === '7b9b13') {
+      return `${rootNote}7b9b13`;
+    } else if (chordType === '7#9#11') {
+      return `${rootNote}7#9#11`;
+    } else if (chordType === 'm9b5') {
+      return `${rootNote}m9b5`;
+    } else if (chordType === 'm11') {
+      return `${rootNote}m11`;
+    } else if (chordType === 'dim9') {
+      return `${rootNote}dim9`;
+    } else if (chordType === '7alt') {
+      return `${rootNote}7alt`;
     } else {
       return `${rootNote}${chordType}`;
     }
   };
 
   const getChordNotesRootPosition = () => {
-    const chord = Chord.get(getTonalChordName());
+    let chordName = getTonalChordName();
+    // Special handling for maj7b5
+    if (chordType === 'maj7b5') {
+      chordName = `${rootNote}maj7b5`;
+    }
+    const chord = Chord.get(chordName);
+    console.log('Chord name:', chordName); // Debug log
+    console.log('Chord object:', chord); // Debug log
     return chord.notes;
   };
 
@@ -193,10 +260,10 @@ function App() {
         <h1 className="text-2xl sm:text-4xl font-bold text-center text-gray-800 mb-6">Chord Visualizer</h1>
           
         {/* Consolidated and Responsive Control Section */}
-        <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 mb-8">
+        <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 mb-8">
           {/* Root Note Selection */}
           <div className="flex items-center gap-1">
-            <span className="text-lg font-semibold text-gray-700">Root:</span>
+            <span className="text-lg font-bold text-gray-700">Root</span>
             <div className="flex flex-wrap gap-1">
               {notes.map(note => (
                 <button
@@ -211,69 +278,100 @@ function App() {
           </div>
 
           {/* Chord Type Selection */}
-          <div className="flex items-center gap-1">
-            <span className="text-lg font-semibold text-gray-700">Type:</span>
-            <div className="flex flex-wrap gap-1">
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-lg font-bold text-gray-700">Type</span>
+            <div className="flex flex-col gap-2">
               {/* Basic Triads - Purple Theme */}
-              {chordTypes.slice(0, 6).map(type => (
-                <button 
-                  key={type} 
-                  onClick={() => setChordType(type)}
-                  className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
-                    chordType === type ? 'bg-purple-600 text-white border-purple-600' : 'border-purple-400 text-purple-800 bg-purple-100 hover:bg-purple-200'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-1">
+                <span className="text-sm font-medium text-gray-600 w-full mb-1">basic:</span>
+                {chordGroups.basic.map(type => (
+                  <button 
+                    key={type} 
+                    onClick={() => setChordType(type)}
+                    className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
+                      chordType === type ? 'bg-purple-600 text-white border-purple-600' : 'border-purple-400 text-purple-800 bg-purple-100 hover:bg-purple-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+              
               {/* Seventh Chords - Yellow Theme */}
-              {chordTypes.slice(6, 12).map(type => (
-                <button 
-                  key={type} 
-                  onClick={() => setChordType(type)}
-                  className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
-                    chordType === type ? 'bg-yellow-600 text-white border-yellow-600' : 'border-yellow-400 text-yellow-800 bg-yellow-100 hover:bg-yellow-200'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-1">
+                <span className="text-sm font-medium text-gray-600 w-full mb-1">seventh:</span>
+                {chordGroups.seventh.map(type => (
+                  <button 
+                    key={type} 
+                    onClick={() => setChordType(type)}
+                    className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
+                      chordType === type ? 'bg-yellow-600 text-white border-yellow-600' : 'border-yellow-400 text-yellow-800 bg-yellow-100 hover:bg-yellow-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
               {/* Extended Chords - Red Theme */}
-              {chordTypes.slice(12, 21).map(type => (
-                <button 
-                  key={type} 
-                  onClick={() => setChordType(type)}
-                  className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
-                    chordType === type ? 'bg-red-600 text-white border-red-600' : 'border-red-400 text-red-800 bg-red-100 hover:bg-red-200'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-1">
+                <span className="text-sm font-medium text-gray-600 w-full mb-1">extended:</span>
+                {chordGroups.extended.map(type => (
+                  <button 
+                    key={type} 
+                    onClick={() => setChordType(type)}
+                    className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
+                      chordType === type ? 'bg-red-600 text-white border-red-600' : 'border-red-400 text-red-800 bg-red-100 hover:bg-red-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
               {/* Added Tone Chords - Indigo Theme */}
-              {chordTypes.slice(21).map(type => (
-                <button 
-                  key={type} 
-                  onClick={() => setChordType(type)}
-                  className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
-                    chordType === type ? 'bg-indigo-600 text-white border-indigo-600' : 'border-indigo-400 text-indigo-800 bg-indigo-100 hover:bg-indigo-200'
-                  }`}
-                >
-                  {type}
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-1">
+                <span className="text-sm font-medium text-gray-600 w-full mb-1">added tone:</span>
+                {chordGroups.added.map(type => (
+                  <button 
+                    key={type} 
+                    onClick={() => setChordType(type)}
+                    className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
+                      chordType === type ? 'bg-indigo-600 text-white border-indigo-600' : 'border-indigo-400 text-indigo-800 bg-indigo-100 hover:bg-indigo-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+
+              {/* Complex Extended Chords - Green Theme */}
+              <div className="flex flex-wrap gap-1">
+                <span className="text-sm font-medium text-gray-600 w-full mb-1">complex:</span>
+                {chordGroups.complex.map(type => (
+                  <button 
+                    key={type} 
+                    onClick={() => setChordType(type)}
+                    className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${
+                      chordType === type ? 'bg-green-600 text-white border-green-600' : 'border-green-400 text-green-800 bg-green-100 hover:bg-green-200'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          {/* Inversion Selection - Green Theme */}
+          {/* Inversion Selection - Blue Theme */}
           <div className="flex items-center gap-1">
-            <span className="text-lg font-semibold text-gray-700">Inversion:</span>
+            <span className="text-lg font-bold text-gray-700">Inversion</span>
             <div className="flex flex-wrap gap-1">
               {[...Array(getMaxInversions() + 1)].map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setInversion(i)}
-                  className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${inversion === i ? 'bg-green-600 text-white border-green-600' : 'border-green-400 text-green-800 bg-green-100 hover:bg-green-200'}`}
+                  className={`px-3 py-1 border-2 rounded-md text-base focus:outline-none ${inversion === i ? 'bg-blue-600 text-white border-blue-600' : 'border-blue-400 text-blue-800 bg-blue-100 hover:bg-blue-200'}`}
                 >
                   {i === 0 ? 'Root' : `${i}`}
                 </button>
