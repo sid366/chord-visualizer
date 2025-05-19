@@ -1,0 +1,159 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.piano-container {
+  position: relative;
+  height: 220px;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: fit-content;
+}
+
+.piano-key {
+  border: 1px solid #000;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 10px;
+}
+
+.white-key {
+  background: white;
+  height: 200px;
+  width: 45px;
+  z-index: 1;
+  border-radius: 0 0 4px 4px;
+}
+
+.black-key {
+  background: #333;
+  height: 120px;
+  width: 32px;
+  margin: 0 -16px;
+  z-index: 2;
+  border-radius: 0 0 4px 4px;
+}
+
+.note-name {
+  font-size: 12px;
+  font-weight: bold;
+  position: absolute;
+  bottom: 5px;
+  z-index: 3;
+}
+
+.white-key-text {
+  color: #333;
+}
+
+.black-key-text {
+  color: white;
+}
+
+/* Position-based colors for chord notes */
+.position-0 {
+  background-color: #FF6B6B !important;
+  color: white !important;
+}
+
+.position-1 {
+  background-color: #4ECDC4 !important;
+  color: white !important;
+}
+
+.position-2 {
+  background-color: #45B7D1 !important;
+  color: white !important;
+}
+
+.position-3 {
+  background-color: #96CEB4 !important;
+  color: white !important;
+}
+
+.position-4 {
+  background-color: #D4A5A5 !important;
+  color: white !important;
+}
+
+.position-5 {
+  background-color: #FFD166 !important;
+  color: white !important;
+}
+
+.position-6 {
+  background-color: #06D6A0 !important;
+  color: white !important;
+}
+
+.position-7 {
+  background-color: #118AB2 !important;
+  color: white !important;
+}
+
+.position-8 {
+  background-color: #073B4C !important;
+  color: white !important;
+}
+
+.black-key.highlighted {
+  transform: scale(0.98);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.white-key.highlighted {
+  transform: scale(0.98);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Legend items */
+.legend-item {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  min-width: 80px;
+  text-align: center;
+}
+
+/* Custom scrollbar for the piano container */
+.piano-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.piano-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.piano-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.piano-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Base styles */
+:root {
+  color: #213547;
+  background-color: #ffffff;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
